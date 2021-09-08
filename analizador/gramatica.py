@@ -20,7 +20,7 @@ reservadas = {
     'parse'     :   'PARSE',
     'trunc'     :   'TRUNC',
     'float'     :   'FLOAT',
-    'string'    :   'STRING',
+    'string'    :   'FSTRING',
     'typeof'    :   'TYPEOF',
     'push'      :   'PUSH',
     'pop'       :   'POP',
@@ -68,9 +68,9 @@ tokens = [
     'ENTERO',
     'ID',
     'CADENA',
-    'CHAR',
+    'CARACTER',
     'COMA',
-] + list(reservadas.values)
+] + list(reservadas.values())
 
 # Tokens
 t_PTCOMA        = r';'
@@ -84,7 +84,7 @@ t_MENOS         = r'\-'
 t_DIVIDIDO      = r'/'
 t_MODULO        = r'%'
 t_PAREA         = r'\('
-t_PAREC         = r')'
+t_PAREC         = r'\)'
 t_MENOR         = r'<'
 t_MAYOR         = r'>'
 t_MENORIGUAL    = r'<='
@@ -95,7 +95,7 @@ t_DIFERENTE     = r'!='
 t_OR            = r'\|\|'
 t_AND           = r'&&'
 t_NOT           = r'!'
-t_DOLAR         = r'$'
+t_DOLAR         = r'\$'
 t_COMA          = r','
 
 def t_DECIMAL(t):
@@ -130,11 +130,11 @@ def t_CHAR(t):
     return t
 
 def t_COMENTARIO_MULTILINEA(t):
-    r'#=(.|\n)*?=#'
+    r'\#=(.|\n)*?=\#'
     t.lexer.lineno += t.value.count('\n')
 
 def t_COMENTARIO_SIMPLE(t):
-    r'#.*\n'
+    r'\#.*\n'
     t.lexer.lineno += 1
 
 t_ignore = " \t"
@@ -164,14 +164,38 @@ precedence = (
 )
 
 def p_init(t):
-    'init       :   instrucciones'
+    'init           :   instrucciones'
 
 def p_instrucciones(t):
-    'instrucciones      :   instrucciones instruccion'
+    '''instrucciones: instrucciones instruccion
+                    | instuccion
+    '''                 
 
 def p_instruccion(t):
-    '''instruccion
+    '''instruccion  : expl 
 
+    '''
+
+def p_expl(t):
+    '''expl         : expl OR expm
+                    | expl AND expm
+                    | NOT expm
+                    | expl EQUALS expm
+                    | expl DIFERENTE expm
+                    | expl MENOR expm
+                    | expl MAYOR expm
+                    | expl MAYORIGUAL expm
+                    | expl MENORIGUAL expm
+                    | expm
+    '''
+def p_expm(t):
+    '''expm         : expm MAS expval
+                    | expm MENOS expval
+                    | expm POR expval
+                    | expm DIVIDIDO expval
+                    | expm MODULO expval
+                    | expm ELEVADO expval
+                    | expval
     '''
 
 def p_expval(t):
@@ -179,27 +203,23 @@ def p_expval(t):
                     | PAREA expl PAREC
                     | num
                     | CADENA
-                    | CHAR
+                    | CARACTER
                     | booleano
                     | ID
-                    | llamada
                     | nativa
     '''
 
 
 def p_nativa(t):
-    '''nativa       : LOG10 arg_unitario
+    '''nativa       : LOG10 args
                     | LOG args
-                    |
+                    | SQRT args
     '''
 
 def p_list_values(t):
     '''list_values  : list_values COMA expl
                     | expl
     '''
-
-def p_arg_unitario(t):
-    'arg_unitario   : PAREA expl PAREC'
 
 def p_args(t):
     'args           : PAREA list_values PAREC'
