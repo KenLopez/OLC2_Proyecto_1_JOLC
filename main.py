@@ -1,6 +1,13 @@
+from classes.Value import Value
 import analizador.gramatica as g
+from classes.Tipo import TYPE
+from classes.Aritmetica import Aritmetica
+from classes.Global import Global
 
 f = open("./analizador/prueba.txt", "r")
 input = f.read()
 
-instrucciones = g.parse(input)
+main = Global()
+main.instrucciones = g.parse(input)
+main.execute()
+print(main.output)
