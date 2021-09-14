@@ -2,26 +2,26 @@ from classes.Value import Value
 from classes.Tipo import TYPE
 class Print:
     def __init__(self, val, type, row, col):
-        if(val == None):
-            self.val = Value('', TYPE.TYPESTRING, TYPE.VALUE, row, col)
-        else:
-            self.val = val
+        self.val = val
         self.type = type
         self.row = row
         self.col = col
+        if(val == []):
+            self.val.append(Value('', TYPE.TYPESTRING, row, col))
 
     def execute(self, main, tabla):
         output = ""
         for i in range(len(self.val)):
             v = self.val[i].execute(main, tabla)
             if(v!=TYPE.ERROR):
-                if(v.type == TYPE.TYPEBOOL):
-                    output += str(v.val).lower()
-                elif(v.type == TYPE.NOTHING):
-                    output += "nothing"
-                else:
-                    output += str(v.val)
-            else:
-                return TYPE.ERROR
+                output += self.convertString(v)
         if self.type == TYPE.FPRINTLN: output += '\n'
         main.newPrint(output)
+
+    def convertString(self, v):
+        if(v.type == TYPE.TYPEBOOL):
+            return str(v.val).lower()
+        elif(v.type == TYPE.NOTHING):
+            return "nothing"
+        else:
+            return str(v.val)

@@ -1,27 +1,27 @@
 reservadas = {
     #'end'       :   'END',
     #'Nothing'   :   'NOTHING',
-    #'Int64'     :   'INT64',
-    #'Float64'   :   'FLOAT64',
+    'Int64'     :   'INT64',
+    'Float64'   :   'FLOAT64',
     #'Bool'      :   'BOOL',
     #'Char'      :   'CHAR',
     #'String'    :   'STRING',
     #'struct'    :   'STRUCT',
     'log'       :   'LOG',
     'log10'     :   'LOG10',
-    #'sin'       :   'SIN',
-    #'cos'       :   'COS',
-    #'tan'       :   'TAN',
+    'sin'       :   'SIN',
+    'cos'       :   'COS',
+    'tan'       :   'TAN',
     'sqrt'      :   'SQRT',
     'print'     :   'PRINT',
     'println'   :   'PRINTLN',
     #'local'     :   'LOCAL',
     #'function'  :   'FUNCTION',
-    #'parse'     :   'PARSE',
-    #'trunc'     :   'TRUNC',
-    #'float'     :   'FLOAT',
-    #'string'    :   'FSTRING',
-    #'typeof'    :   'TYPEOF',
+    'parse'     :   'PARSE',
+    'trunc'     :   'TRUNC',
+    'float'     :   'FLOAT',
+    'string'    :   'FSTRING',
+    'typeof'    :   'TYPEOF',
     #'push'      :   'PUSH',
     #'pop'       :   'POP',
     #'length'    :   'LENGTH',
@@ -34,16 +34,16 @@ reservadas = {
     #'continue'  :   'CONTINUE',
     #'return'    :   'RETURN',
     #'mutable'   :   'MUTABLE',
-    #'uppercase' :   'UPPERCASE',
-    #'lowercase' :   'LOWERCASE',
+    'uppercase' :   'UPPERCASE',
+    'lowercase' :   'LOWERCASE',
     'true'      :   'TRUE',
     'false'     :   'FALSE',
 }
 
 tokens = [
     'PTCOMA',
-    #'CORCHEA',
-    #'CORCHEC',
+    'CORCHEA',
+    'CORCHEC',
     #'DDOSPT',
     'MAS',
     'POR',
@@ -74,8 +74,8 @@ tokens = [
 
 # Tokens
 t_PTCOMA        = r';'
-#t_CORCHEA       = r'\['
-#t_CORCHEC       = r'\]'
+t_CORCHEA       = r'\['
+t_CORCHEC       = r'\]'
 #t_DDOSPT        = r'::'
 t_MAS           = r'\+'
 t_POR           = r'\*'
@@ -146,6 +146,7 @@ def t_newline(t):
 def t_error(t):
     print("Caracter no reconocido '%s'" % t.value[0])
 
+from classes.Nativa import Nativa
 from classes.Tipo import TYPE
 from classes.Value import Value
 from classes.Aritmetica import Aritmetica
@@ -268,6 +269,7 @@ def p_expval_float(t):
 
 def p_expval_nativa(t):
     'expval         : nativa'
+    t[0] = t[1]
 
 def p_expval_id(t):
     'expval         : ID'
@@ -276,16 +278,54 @@ def p_expval_paren(t):
     'expval         : PAREA expl PAREC'
     t[0] = t[2]
 
+def p_expval_type(t):
+    '''expval       : INT64
+                    | FLOAT64
+    '''
+    if t[1] == 'Int64': t[0] = Value(TYPE.TYPEINT64, TYPE.VALUETYPE, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'Float64': t[0] = Value(TYPE.TYPEFLOAT64, TYPE.VALUETYPE, t.lexer.lineno, t.lexer.lexpos)
 
 def p_nativa(t):
     '''nativa       : LOG10 args
                     | LOG args
                     | SQRT args
+                    | LOWERCASE args
+                    | UPPERCASE args
+                    | SIN args
+                    | COS args
+                    | TAN args
+                    | PARSE args
+                    | TRUNC args
+                    | FLOAT args
+                    | FSTRING args
+                    | TYPEOF args
     '''
+    if t[1] == 'uppercase': t[0] = Nativa(t[2], TYPE.UPPERCASE, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'lowercase': t[0] = Nativa(t[2], TYPE.LOWERCASE, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'log10': t[0] = Nativa(t[2], TYPE.LOG10, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'log': t[0] = Nativa(t[2], TYPE.LOG, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'sin': t[0] = Nativa(t[2], TYPE.SIN, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'cos': t[0] = Nativa(t[2], TYPE.COS, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'tan': t[0] = Nativa(t[2], TYPE.TAN, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'sqrt': t[0] = Nativa(t[2], TYPE.SQRT, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'parse': t[0] = Nativa(t[2], TYPE.PARSE, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'trunc': t[0] = Nativa(t[2], TYPE.TRUNCATE, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'string': t[0] = Nativa(t[2], TYPE.FSTRING, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'float': t[0] = Nativa(t[2], TYPE.FFLOAT, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'typeof': t[0] = Nativa(t[2], TYPE.TYPEOF, t.lexer.lineno, t.lexer.lexpos)
+
+def p_expval_array(t):
+    'expval       : CORCHEA list_values CORCHEC'
+    t[0] = Value(t[2], TYPE.TYPELIST, t.lexer.lineno, t.lexer.lexpos)
+
+def p_expval_empty_array(t):
+    'expval       : CORCHEA CORCHEC'
+    t[0] = Value([], TYPE.TYPELIST, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_list_values(t):
     'list_values    : list_values COMA expl'
-    t[1].append(t[2])
+    t[1].append(t[3])
     t[0] = t[1]
 
 def p_list_value(t):
@@ -296,11 +336,16 @@ def p_args(t):
     'args           : PAREA list_values PAREC'
     t[0] = t[2]
 
+def p_args_none(t):
+    'args           : PAREA PAREC'
+    t[0] = []
+
 def p_booleano(t):
     '''booleano     : TRUE
                     | FALSE
     '''
-    t[0] = t[1]
+    if t[1] == 'true': t[0] = True
+    elif t[1] == 'false': t[0] = False
 
 def p_sync(t):
     'sync           : PTCOMA'

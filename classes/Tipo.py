@@ -37,8 +37,8 @@ class TYPE(Enum):
     POWER = 34
     MODULUS = 35
     NEGATE = 36
-    TYPEAND = 37
-    TYPEOR = 38
+    FFLOAT = 37
+    TYPEOF = 38
     SYMBOL = 39
     VARIBLE = 40
     MUTABLE = 41
@@ -46,11 +46,29 @@ class TYPE(Enum):
     ERROR = 43
     PARAMETER = 44
     CALL = 45
-    TOLOWER = 46
-    TOUPPER = 47
+    FSTRING = 46
+    VALUETYPE = 47
     TRUNCATE = 48
     ROUND = 49
     TYPELIST = 50
     LOGICAND = 51
     LOGICOR = 52
+    UPPERCASE = 53
+    LOWERCASE = 54
+    LOG10 = 55
+    LOG = 56
+    SQRT = 57
+    COS = 58
+    SIN = 59
+    TAN = 60
+    PARSE = 61
 
+names = {
+    'TYPE.TYPESTRING': 'String',
+    'TYPE.TYPEFLOAT64': 'Float64',
+    'TYPE.TYPEINT64': 'Int64',
+    'TYPE.TYPELIST': 'Array',
+    'TYPE.TYPEBOOL': 'Boolean',
+    'TYPE.NOTHING': 'Nothing',
+    'TYPE.TYPECHAR': 'Char',
+}
