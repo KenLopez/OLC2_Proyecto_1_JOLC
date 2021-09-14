@@ -1,5 +1,6 @@
 from classes.Value import Value
 from classes.Tipo import *
+from classes.Print import convertString
 import math
 
 
@@ -104,19 +105,7 @@ class Nativa:
         elif(self.type == TYPE.FSTRING):
             if(len(self.val) == 1):
                 v = self.val[0].execute(main, tabla)
-                o = str(v.val)
-                if(v.type == TYPE.TYPELIST):
-                    if(len(v.val)>0):
-                        o = '['
-                        for i in v.val:
-                            x = i.execute(main, tabla)
-                            if(x == TYPE.ERROR):
-                                return TYPE.ERROR
-                            o += str(x.val) + ','
-                        o = o[0:-1]
-                        o += ']'
-                    else:
-                        o = '[]'
+                o = convertString(v)
                 return Value(o, TYPE.TYPESTRING, self.row, self.col)
             return TYPE.ERROR
         elif(self.type == TYPE.TYPEOF):

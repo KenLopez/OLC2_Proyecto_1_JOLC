@@ -14,14 +14,14 @@ class Print:
         for i in range(len(self.val)):
             v = self.val[i].execute(main, tabla)
             if(v!=TYPE.ERROR):
-                output += self.convertString(v)
+                output += convertString(v)
         if self.type == TYPE.FPRINTLN: output += '\n'
         main.newPrint(output)
 
-    def convertString(self, v):
-        if(v.type == TYPE.TYPEBOOL):
-            return str(v.val).lower()
-        elif(v.type == TYPE.NOTHING):
-            return "nothing"
-        else:
-            return str(v.val)
+def convertString(v):
+    if(v.type == TYPE.TYPEBOOL):
+        return str(v.val).lower()
+    elif(v.type == TYPE.NOTHING):
+        return "nothing"
+    else:
+        return str(v.val)
