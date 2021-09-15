@@ -146,6 +146,7 @@ def t_newline(t):
 def t_error(t):
     print("Caracter no reconocido '%s'" % t.value[0])
 
+from classes.ArrayAccess import ArrayAccess
 from classes.While import While
 from classes.If import If
 from classes.Variable import Variable
@@ -380,13 +381,25 @@ def p_nativa(t):
     elif t[1] == 'length': t[0] = Nativa(t[2], TYPE.LENGTH, t.lexer.lineno, t.lexer.lexpos)
 
 def p_expval_array(t):
-    'expval       : CORCHEA list_values CORCHEC'
+    'expval         : CORCHEA list_values CORCHEC'
     t[0] = Value(t[2], TYPE.TYPELIST, t.lexer.lineno, t.lexer.lexpos)
 
 def p_expval_empty_array(t):
-    'expval       : CORCHEA CORCHEC'
+    'expval         : CORCHEA CORCHEC'
     t[0] = Value([], TYPE.TYPELIST, t.lexer.lineno, t.lexer.lexpos)
 
+def p_expval_array_access(t):
+    'expval         : expval array_access'
+    t[0] = ArrayAccess(t[1], t[2], t.lexer.lineno, t.lexer.lexpos)
+
+def p_array_accesses(t):
+    'array_access   : array_access CORCHEA expval CORCHEC'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_array_access(t):
+    'array_access   : CORCHEA expval CORCHEC'
+    t[0] = [t[2]]
 
 def p_list_values(t):
     'list_values    : list_values COMA expl'
