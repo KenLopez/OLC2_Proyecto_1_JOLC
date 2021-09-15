@@ -11,7 +11,7 @@ class TYPE(Enum):
     NOTHING = 8
     ANY = 9
     VALUE = 10
-    ARRAY = 11
+    LENGTH = 11
     IF = 12
     WHILE = 13
     FOR = 14

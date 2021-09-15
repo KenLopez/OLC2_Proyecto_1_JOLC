@@ -10,9 +10,9 @@ class Aritmetica:
         self.row = row
         self.col = col
     
-    def execute(self, main, tabla):
-        der = self.expDer.execute(main, tabla)
-        izq = self.expIzq.execute(main, tabla)
+    def execute(self, main, tabla, scope):
+        der = self.expDer.execute(main, tabla, scope)
+        izq = self.expIzq.execute(main, tabla, scope)
         if(self.type == TYPE.ADDITION):
             if(izq.type == TYPE.TYPEINT64):
                 if(der.type == TYPE.TYPEINT64):

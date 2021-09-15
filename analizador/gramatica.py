@@ -1,11 +1,11 @@
 reservadas = {
-    #'end'       :   'END',
-    #'Nothing'   :   'NOTHING',
+    'end'       :   'END',
+    'nothing'   :   'NOTHING',
     'Int64'     :   'INT64',
     'Float64'   :   'FLOAT64',
-    #'Bool'      :   'BOOL',
-    #'Char'      :   'CHAR',
-    #'String'    :   'STRING',
+    'Bool'      :   'BOOL',
+    'Char'      :   'CHAR',
+    'String'    :   'STRING',
     #'struct'    :   'STRUCT',
     'log'       :   'LOG',
     'log10'     :   'LOG10',
@@ -22,12 +22,12 @@ reservadas = {
     'float'     :   'FLOAT',
     'string'    :   'FSTRING',
     'typeof'    :   'TYPEOF',
-    #'push'      :   'PUSH',
-    #'pop'       :   'POP',
-    #'length'    :   'LENGTH',
-    #'if'        :   'IF',
-    #'elseif'    :   'ELSEIF',
-    #'else'      :   'ELSE',
+    #'push!'      :   'PUSH',
+    #'pop!'       :   'POP',
+    'length'    :   'LENGTH',
+    'if'        :   'IF',
+    'elseif'    :   'ELSEIF',
+    'else'      :   'ELSE',
     #'while'     :   'WHILE',
     #'in'        :   'IN',
     #'break'     :   'BREAK',
@@ -44,7 +44,7 @@ tokens = [
     'PTCOMA',
     'CORCHEA',
     'CORCHEC',
-    #'DDOSPT',
+    'DDOSPT',
     'MAS',
     'POR',
     'ELEVADO',
@@ -57,7 +57,7 @@ tokens = [
     'MAYOR',
     'MENORIGUAL',
     'MAYORIGUAL',
-    #'IGUAL',
+    'IGUAL',
     'EQUALS',
     'DIFERENTE',
     'OR',
@@ -76,7 +76,7 @@ tokens = [
 t_PTCOMA        = r';'
 t_CORCHEA       = r'\['
 t_CORCHEC       = r'\]'
-#t_DDOSPT        = r'::'
+t_DDOSPT        = r'::'
 t_MAS           = r'\+'
 t_POR           = r'\*'
 t_ELEVADO       = r'\^'
@@ -89,7 +89,7 @@ t_MENOR         = r'<'
 t_MAYOR         = r'>'
 t_MENORIGUAL    = r'<='
 t_MAYORIGUAL    = r'>='
-#t_IGUAL         = r'='
+t_IGUAL         = r'='
 t_EQUALS        = r'=='
 t_DIFERENTE     = r'!='
 t_OR            = r'\|\|'
@@ -146,6 +146,9 @@ def t_newline(t):
 def t_error(t):
     print("Caracter no reconocido '%s'" % t.value[0])
 
+from classes.If import If
+from classes.Variable import Variable
+from classes.Asignacion import Asignacion
 from classes.Nativa import Nativa
 from classes.Tipo import TYPE
 from classes.Value import Value
@@ -157,7 +160,7 @@ import ply.lex as lex
 lexer = lex.lex()
 
 precedence = (
-    #('right', 'IGUAL'),
+    ('right', 'IGUAL'),
     ('left', 'OR'),
     ('left', 'AND'),
     ('right', 'NOT'),
@@ -187,6 +190,56 @@ def p_instruccion(t):
     '''
     if t[1] == 'print': t[0] = Print(t[2], TYPE.FPRINT, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'println' : t[0] = Print(t[2], TYPE.FPRINTLN, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_asignacion(t):
+    'instruccion    : asignacion sync'
+    t[0] = t[1]
+
+def p_instruccion_if(t):
+    'instruccion    : if END sync'
+    t[0] = t[1]
+
+def p_if_solo(t):
+    'if             : IF expl instrucciones'
+    t[0] = If([t[2]], [t[3]], [], t.lexer.lineno, t.lexer.lexpos)
+
+def p_if_else(t):
+    'if             : IF expl instrucciones ELSE instrucciones'
+    t[0] = If([t[2]], [t[3]], t[5], t.lexer.lineno, t.lexer.lexpos)
+
+def p_if_elseif(t):
+    'if             : IF expl instrucciones elseif'
+    con = [t[2]]
+    con.extend(t[4][0])
+    ins = [t[3]]
+    ins.extend(t[4][1])
+    t[0] = If(con, ins, [], t.lexer.lineno, t.lexer.lexpos)
+
+def p_if_full(t):
+    'if             : IF expl instrucciones elseif ELSE instrucciones'
+    con = [t[2]]
+    con.extend(t[4][0])
+    ins = [t[3]]
+    ins.extend(t[4][1])
+    t[0] = If(con, ins, t[6], t.lexer.lineno, t.lexer.lexpos)
+
+def p_if_elseifs(t):
+    'elseif         : elseif ELSEIF expl instrucciones'
+    t[1][0].append(t[3])
+    t[1][1].append(t[4])
+    t[0] = t[1]
+
+def p_elseif(t):
+    'elseif         : ELSEIF expl instrucciones'
+    t[0] = [[t[2]], [t[3]]]
+
+def p_asignacion_any(t):
+    'asignacion     : ID IGUAL expl'
+    t[0] = Asignacion(t[1], t[3], TYPE.ANY, t.lexer.lineno, t.lexer.lexpos)
+
+def p_asignacion_tipo(t):
+    'asignacion    : ID IGUAL expl DDOSPT typing'
+    t[0] = Asignacion(t[1], t[3], t[5], t.lexer.lineno, t.lexer.lexpos)
 
 def p_expl(t):
     '''expl         : expl OR expl
@@ -241,7 +294,7 @@ def p_expm_val(t):
 
 def p_expval_not(t):
     'expval         : NOT expval'
-    t[0] = Logica(t[1], None, TYPE.NOT, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Logica(t[2], None, TYPE.NOT, t.lexer.lineno, t.lexer.lexpos)
 
 def p_expval_neg(t):
     'expval         : MENOS expval'
@@ -273,6 +326,11 @@ def p_expval_nativa(t):
 
 def p_expval_id(t):
     'expval         : ID'
+    t[0] = Variable(t[1], t.lexer.lineno, t.lexer.lexpos)
+
+def p_expval_nothing(t):
+    'expval         : NOTHING'
+    t[0] = Value(None, TYPE.NOTHING, t.lexer.lineno, t.lexer.lexpos)
 
 def p_expval_paren(t):
     'expval         : PAREA expl PAREC'
@@ -299,6 +357,7 @@ def p_nativa(t):
                     | FLOAT args
                     | FSTRING args
                     | TYPEOF args
+                    | LENGTH args
     '''
     if t[1] == 'uppercase': t[0] = Nativa(t[2], TYPE.UPPERCASE, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'lowercase': t[0] = Nativa(t[2], TYPE.LOWERCASE, t.lexer.lineno, t.lexer.lexpos)
@@ -313,6 +372,7 @@ def p_nativa(t):
     elif t[1] == 'string': t[0] = Nativa(t[2], TYPE.FSTRING, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'float': t[0] = Nativa(t[2], TYPE.FFLOAT, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'typeof': t[0] = Nativa(t[2], TYPE.TYPEOF, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'length': t[0] = Nativa(t[2], TYPE.LENGTH, t.lexer.lineno, t.lexer.lexpos)
 
 def p_expval_array(t):
     'expval       : CORCHEA list_values CORCHEC'
@@ -346,6 +406,20 @@ def p_booleano(t):
     '''
     if t[1] == 'true': t[0] = True
     elif t[1] == 'false': t[0] = False
+
+
+def p_typing(t):
+    '''typing       : INT64
+                    | FLOAT64
+                    | STRING
+                    | BOOL
+                    | CHAR
+    '''
+    if t[1]=='Int64': t[0] = TYPE.TYPEINT64
+    elif t[1]=='Float64': t[0] = TYPE.TYPEFLOAT64
+    elif t[1]=='String': t[0] = TYPE.TYPESTRING
+    elif t[1]=='Bool': t[0] = TYPE.TYPEBOOL
+    elif t[1]=='Char': t[0] = TYPE.TYPECHAR
 
 def p_sync(t):
     'sync           : PTCOMA'
