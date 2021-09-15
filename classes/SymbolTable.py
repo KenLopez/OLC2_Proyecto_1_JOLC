@@ -9,8 +9,9 @@ class SymbolTable:
     def updateSymbol(self, symbol):
         s = self.symbols.get(symbol.id)
         if(s!=None):
-            s.val = symbol.val
-            return Value(None, TYPE.NOTHING, self.symbol.row, self.symbol.col)
+            s.val.val = symbol.val.val
+            s.val.type = symbol.val.type
+            return Value(None, TYPE.NOTHING, symbol.row, symbol.col)
         else:
             if(self.padre == None):
                 self.symbols[symbol.id] = symbol
@@ -19,7 +20,7 @@ class SymbolTable:
                 if(res == TYPE.ERROR):
                     return TYPE.ERROR
                 else:
-                    return Value(None, TYPE.NOTHING, self.symbol.row, self.symbol.col)
+                    return Value(None, TYPE.NOTHING, symbol.row, symbol.col)
         return TYPE.ERROR
 
     def getSymbol(self, id):

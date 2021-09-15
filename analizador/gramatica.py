@@ -28,7 +28,7 @@ reservadas = {
     'if'        :   'IF',
     'elseif'    :   'ELSEIF',
     'else'      :   'ELSE',
-    #'while'     :   'WHILE',
+    'while'     :   'WHILE',
     #'in'        :   'IN',
     #'break'     :   'BREAK',
     #'continue'  :   'CONTINUE',
@@ -146,6 +146,7 @@ def t_newline(t):
 def t_error(t):
     print("Caracter no reconocido '%s'" % t.value[0])
 
+from classes.While import While
 from classes.If import If
 from classes.Variable import Variable
 from classes.Asignacion import Asignacion
@@ -183,6 +184,10 @@ def p_instrucciones_lista(t):
 def p_instrucciones_instruccion(t):
     'instrucciones  :   instruccion'
     t[0] = [t[1]]
+
+def p_instruccion_while(t):
+    'instruccion    : WHILE expl instrucciones END sync'
+    t[0] = While(t[2], t[3], t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion(t):
     '''instruccion  : PRINT args sync 

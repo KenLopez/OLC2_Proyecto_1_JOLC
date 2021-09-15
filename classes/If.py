@@ -21,9 +21,9 @@ class If:
                     res2 = j.execute(main, tabla, nscope)
                     if(res2 == TYPE.ERROR):
                         return TYPE.ERROR
-                return Value(None, TYPE.NOTHING, self.symbol.row, self.symbol.col)
+                return Value(None, TYPE.NOTHING, self.row, self.col)
         for i in self.elseinstructions:
             res = i.execute(main, tabla, nscope)
             if(res == TYPE.ERROR):
                 return TYPE.ERROR
-        return Value(None, TYPE.NOTHING, self.symbol.row, self.symbol.col)
+        return Value(None, TYPE.NOTHING, self.row, self.col)

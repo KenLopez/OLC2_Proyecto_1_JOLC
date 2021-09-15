@@ -3,11 +3,12 @@ from classes.Symbol import Symbol
 from classes.Tipo import TYPE
 class Asignacion:
     def __init__(self, id, val, type, row, col):
-        self.symbol  = Symbol(id, val, '', row, col)
+        self.symbol  = Symbol(id, None, '', row, col)
+        self.val = val
         self.type = type
     
     def execute(self, main, table, scope):
-        self.symbol.val = self.symbol.val.execute(main, table, scope)
+        self.symbol.val = self.val.execute(main, table, scope)
         if(self.symbol.val==TYPE.ERROR):
             return TYPE.ERROR
         self.symbol.scope = scope

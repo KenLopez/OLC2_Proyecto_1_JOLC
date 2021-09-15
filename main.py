@@ -4,7 +4,7 @@ from classes.Tipo import TYPE
 from classes.Aritmetica import Aritmetica
 from classes.Global import Global
 
-f = open("./analizador/prueba.txt", "r")
+f = open("./analizador/prueba2.txt", "r")
 input = f.read()
 
 main = Global()
