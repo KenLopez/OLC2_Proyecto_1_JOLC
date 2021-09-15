@@ -1,3 +1,4 @@
+from classes.Value import Value
 from classes.Symbol import Symbol
 from classes.Tipo import TYPE
 class Asignacion:
@@ -12,9 +13,9 @@ class Asignacion:
         self.symbol.scope = scope
         if(self.type == TYPE.ANY):
             table.updateSymbol(self.symbol)
-            return TYPE.NOTHING
+            return Value(None, TYPE.NOTHING, self.symbol.row, self.symbol.col)
         elif(self.type == self.symbol.val.type):
             table.updateSymbol(self.symbol)
-            return TYPE.NOTHING
+            return Value(None, TYPE.NOTHING, self.symbol.row, self.symbol.col)
         else:
             return TYPE.ERROR

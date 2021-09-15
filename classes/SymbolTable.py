@@ -1,3 +1,4 @@
+from classes.Value import Value
 from classes.Tipo import TYPE
 
 class SymbolTable:
@@ -9,7 +10,7 @@ class SymbolTable:
         s = self.symbols.get(symbol.id)
         if(s!=None):
             s.val = symbol.val
-            return TYPE.NOTHING
+            return Value(None, TYPE.NOTHING, self.symbol.row, self.symbol.col)
         else:
             if(self.padre == None):
                 self.symbols[symbol.id] = symbol
@@ -18,7 +19,7 @@ class SymbolTable:
                 if(res == TYPE.ERROR):
                     return TYPE.ERROR
                 else:
-                    return TYPE.NOTHING
+                    return Value(None, TYPE.NOTHING, self.symbol.row, self.symbol.col)
         return TYPE.ERROR
 
     def getSymbol(self, id):

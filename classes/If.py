@@ -1,3 +1,4 @@
+from classes.Value import Value
 from classes.Tipo import TYPE
 class If:
     def __init__(self, conditions, instructions, elseinstructions, row, col):
@@ -20,9 +21,9 @@ class If:
                     res2 = j.execute(main, tabla, nscope)
                     if(res2 == TYPE.ERROR):
                         return TYPE.ERROR
-                return TYPE.NOTHING
+                return Value(None, TYPE.NOTHING, self.symbol.row, self.symbol.col)
         for i in self.elseinstructions:
             res = i.execute(main, tabla, nscope)
             if(res == TYPE.ERROR):
                 return TYPE.ERROR
-        return TYPE.NOTHING
+        return Value(None, TYPE.NOTHING, self.symbol.row, self.symbol.col)

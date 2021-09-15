@@ -95,7 +95,12 @@ class Nativa:
                 if(((v.type == TYPE.TYPEFLOAT64) or (v.type == TYPE.TYPEINT64)) and t.type == TYPE.VALUETYPE):
                     if(t.val == TYPE.TYPEINT64 or t.val == TYPE.TYPEFLOAT64):
                         return Value(math.trunc(v.val), t.val, self.row, self.col)
-                return TYPE.ERROR
+            elif(len(self.val)==1):
+                v = self.val[0].execute(main, tabla, scope)
+                if((v.type == TYPE.TYPEFLOAT64) or (v.type == TYPE.TYPEINT64)):
+                    return Value(math.trunc(v.val), TYPE.TYPEINT64, self.row, self.col)
+            return TYPE.ERROR
+            
         elif(self.type == TYPE.FFLOAT):
             if(len(self.val) == 1):
                 v = self.val[0].execute(main, tabla, scope)

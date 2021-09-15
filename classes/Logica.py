@@ -11,7 +11,11 @@ class Logica:
     
     def execute(self, main, tabla, scope):
         if(self.expDer != None): der = self.expDer.execute(main, tabla, scope)
+        if(der == TYPE.ERROR):
+            return TYPE.ERROR
         izq = self.expIzq.execute(main, tabla, scope)
+        if(izq == TYPE.ERROR):
+            return TYPE.ERROR
         if(izq.type == TYPE.TYPEBOOL):
             if(self.type == TYPE.NOT):
                 return Value((not izq.val), TYPE.TYPEBOOL, self.row, self.col)

@@ -11,7 +11,11 @@ class Relacional:
     
     def execute(self, main, tabla, scope):
         der = self.expDer.execute(main, tabla, scope)
+        if(der == TYPE.ERROR):
+            return TYPE.ERROR
         izq = self.expIzq.execute(main, tabla, scope)
+        if(izq == TYPE.ERROR):
+            return TYPE.ERROR
         if(self.type == TYPE.GREATER):
             if(izq.type == TYPE.TYPEINT64):
                 if(der.type == TYPE.TYPEINT64):
