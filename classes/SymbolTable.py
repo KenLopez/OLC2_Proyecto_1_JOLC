@@ -6,33 +6,26 @@ class SymbolTable:
         self.padre = padre
         self.symbols = {}
     
-    def updateSymbol(self, symbol):
-        s = self.symbols.get(symbol.id)
-        if(s!=None):
-            s.val.val = symbol.val.val
-            s.val.type = symbol.val.type
-            return Value(None, TYPE.NOTHING, symbol.row, symbol.col)
+    def updateSymbol(self, symbol, type=TYPE.NOTHING):
+        s = self.getSymbol(symbol.id, type)
+        if(s != TYPE.ERROR):
+            s.type = symbol.val.type
+            s.val = symbol.val.val
         else:
-            if(self.padre == None):
-                self.symbols[symbol.id] = symbol
-            else:
-                res = self.padre.updateSymbol(symbol)
-                if(res == TYPE.ERROR):
-                    return TYPE.ERROR
-                else:
-                    return Value(None, TYPE.NOTHING, symbol.row, symbol.col)
-        return TYPE.ERROR
+            self.symbols[symbol.id] = symbol
+        return Value(None, TYPE.NOTHING, symbol.row, symbol.col)
 
-    def getSymbol(self, id):
+    def getSymbol(self, id, type = TYPE.NOTHING):
         s = self.symbols.get(id)
         if(s!=None):
-            return s.val
+            if((type != TYPE.GLOBAL) or (self.padre == None)):
+                return s.val
+        if(self.padre == None):
+            return TYPE.ERROR
         else:
-            if(self.padre == None):
-                return TYPE.ERROR
-            else:
-                res = self.padre.getSymbol(id)
+            if(type != TYPE.LOCAL):
+                res = self.padre.getSymbol(id, type)
                 if(res==TYPE.ERROR):
                     return TYPE.ERROR
-                else:
-                    return res
+                return res
+            return TYPE.ERROR

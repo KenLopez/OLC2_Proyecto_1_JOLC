@@ -15,7 +15,8 @@ reservadas = {
     'sqrt'      :   'SQRT',
     'print'     :   'PRINT',
     'println'   :   'PRINTLN',
-    #'local'     :   'LOCAL',
+    'local'     :   'LOCAL',
+    'global'    :   'GLOBAL',
     #'function'  :   'FUNCTION',
     'parse'     :   'PARSE',
     'trunc'     :   'TRUNC',
@@ -29,7 +30,8 @@ reservadas = {
     'elseif'    :   'ELSEIF',
     'else'      :   'ELSE',
     'while'     :   'WHILE',
-    #'in'        :   'IN',
+    'for'       :   'FOR',
+    'in'        :   'IN',
     #'break'     :   'BREAK',
     #'continue'  :   'CONTINUE',
     #'return'    :   'RETURN',
@@ -70,6 +72,7 @@ tokens = [
     'CADENA',
     'CARACTER',
     'COMA',
+    'DOSPT',
 ] + list(reservadas.values())
 
 # Tokens
@@ -77,6 +80,7 @@ t_PTCOMA        = r';'
 t_CORCHEA       = r'\['
 t_CORCHEC       = r'\]'
 t_DDOSPT        = r'::'
+t_DOSPT         = r':'        
 t_MAS           = r'\+'
 t_POR           = r'\*'
 t_ELEVADO       = r'\^'
@@ -146,6 +150,7 @@ def t_newline(t):
 def t_error(t):
     print("Caracter no reconocido '%s'" % t.value[0])
 
+from classes.For import For
 from classes.ArrayAccess import ArrayAccess
 from classes.While import While
 from classes.If import If
@@ -189,6 +194,18 @@ def p_instrucciones_instruccion(t):
 def p_instruccion_while(t):
     'instruccion    : WHILE expl instrucciones END sync'
     t[0] = While(t[2], t[3], t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_for(t):
+    'instruccion    : FOR ID IN range instrucciones END sync'
+    t[0] = For(t[2], t[4], t[5], t.lexer.lineno, t.lexer.lexpos)
+
+def p_range_expl(t):
+    'range          : expl'
+    t[0] = t[1]
+
+def p_range_range(t):
+    'range          : expl DOSPT expl'
+    t[0] = Value([t[1], t[3]], TYPE.RANGE, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion(t):
     '''instruccion  : PRINT args sync 
@@ -240,12 +257,32 @@ def p_elseif(t):
     t[0] = [[t[2]], [t[3]]]
 
 def p_asignacion_any(t):
-    'asignacion     : ID IGUAL expl'
-    t[0] = Asignacion(t[1], t[3], TYPE.ANY, t.lexer.lineno, t.lexer.lexpos)
+    'asignacion     : variable IGUAL expl'
+    t[0] = Asignacion(t[1][0], t[3], TYPE.ANY, t[1][1], t.lexer.lineno, t.lexer.lexpos)
 
 def p_asignacion_tipo(t):
-    'asignacion    : ID IGUAL expl DDOSPT typing'
-    t[0] = Asignacion(t[1], t[3], t[5], t.lexer.lineno, t.lexer.lexpos)
+    'asignacion     : variable IGUAL expl DDOSPT typing'
+    t[0] = Asignacion(t[1][0], t[3], t[5], t[1][1], t.lexer.lineno, t.lexer.lexpos)
+
+def p_variable_id(t):
+    'variable       : id'
+    t[0] = [t[1], TYPE.NOTHING]
+
+def p_variable_local(t):
+    'variable       : LOCAL id'
+    t[0] = [t[2], TYPE.LOCAL]
+
+def p_variable_global(t):
+    'variable       : GLOBAL id'
+    t[0] = [t[2], TYPE.GLOBAL]
+
+def p_id_id(t):
+    'id         : ID'
+    t[0] = t[1]
+
+def p_id_array_access(t):
+    'id         : expl array_access'
+    t[0] = ArrayAccess(t[1], t[2], t.lexer.lineno, t.lexer.lexpos)
 
 def p_expl(t):
     '''expl         : expl OR expl
@@ -393,12 +430,12 @@ def p_expval_array_access(t):
     t[0] = ArrayAccess(t[1], t[2], t.lexer.lineno, t.lexer.lexpos)
 
 def p_array_accesses(t):
-    'array_access   : array_access CORCHEA expval CORCHEC'
+    'array_access   : array_access CORCHEA expm CORCHEC'
     t[1].append(t[3])
     t[0] = t[1]
 
 def p_array_access(t):
-    'array_access   : CORCHEA expval CORCHEC'
+    'array_access   : CORCHEA expm CORCHEC'
     t[0] = [t[2]]
 
 def p_list_values(t):

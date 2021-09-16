@@ -25,8 +25,8 @@ class ArrayAccess:
     
 
     def getAccess(self, arr, pos, main, tabla, scope):
-        if (pos > len(arr)-1):
+        if (pos > len(arr)):
             return TYPE.ERROR
         if (pos < 0):
             return TYPE.ERROR
-        return arr[pos].execute(main, tabla, scope)
+        return arr[pos-1].execute(main, tabla, scope)

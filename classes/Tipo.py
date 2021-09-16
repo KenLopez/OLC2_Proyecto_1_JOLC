@@ -62,6 +62,9 @@ class TYPE(Enum):
     SIN = 59
     TAN = 60
     PARSE = 61
+    LOCAL = 62
+    GLOBAL = 63
+    RANGE = 64
 
 names = {
     'TYPE.TYPESTRING': 'String',
