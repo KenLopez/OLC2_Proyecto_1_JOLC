@@ -19,21 +19,23 @@ class Asignacion:
             return TYPE.ERROR
         if(self.type == TYPE.ANY):
             if(isinstance(self.id, ArrayAccess)):
-                res = self.id.execute(main, tabla, scope)
-                if(res == TYPE.ERROR):
-                    return TYPE.ERROR
-                res.type = self.val.type
-                res.val = val.val
-            tabla.updateSymbol(Symbol(self.id, val, scope, self.row, self.col), self.typeExp)
-            return Value(None, TYPE.NOTHING, self.row, self.col)
-        elif(self.type == val.type):
-            if(isinstance(self.id, ArrayAccess)):
-                res = self.id.execute(main, tabla, scope)
+                res = self.id.get(main, tabla, scope)
                 if(res == TYPE.ERROR):
                     return TYPE.ERROR
                 res.type = val.type
                 res.val = val.val
-            tabla.updateSymbol(Symbol(self.id, val, scope, self.row, self.col), self.typeExp)
+            else:
+                tabla.updateSymbol(Symbol(self.id, val, scope, self.row, self.col), self.typeExp)
+            return Value(None, TYPE.NOTHING, self.row, self.col)
+        elif(self.type == val.type):
+            if(isinstance(self.id, ArrayAccess)):
+                res = self.id.get(main, tabla, scope)
+                if(res == TYPE.ERROR):
+                    return TYPE.ERROR
+                res.type = val.type
+                res.val = val.val
+            else:
+                tabla.updateSymbol(Symbol(self.id, val, scope, self.row, self.col), self.typeExp)
             return Value(None, TYPE.NOTHING, self.row, self.col)
         else:
             return TYPE.ERROR

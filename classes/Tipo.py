@@ -65,6 +65,11 @@ class TYPE(Enum):
     LOCAL = 62
     GLOBAL = 63
     RANGE = 64
+    PUSH = 65
+    POP = 66
+    CONTINUE = 67
+    RETURN = 68
+    BREAK = 69
 
 names = {
     'TYPE.TYPESTRING': 'String',

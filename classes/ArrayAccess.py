@@ -18,15 +18,46 @@ class ArrayAccess:
                 return TYPE.ERROR
             if(index.type != TYPE.TYPEINT64):
                 return TYPE.ERROR
-            v = self.getAccess(v.val, index.val, main, tabla, scope)
+            if (index.val > len(v.val)):
+                return TYPE.ERROR
+            if (index.val < 0):
+                return TYPE.ERROR
+            v = v.val[index.val-1].execute(main, tabla, scope)
         if(v == TYPE.ERROR):
             return TYPE.ERROR
         return v
     
-
-    def getAccess(self, arr, pos, main, tabla, scope):
-        if (pos > len(arr)):
+    def get(self, main, tabla, scope):
+        v = self.val.execute(main, tabla, scope)
+        for i in range(len(self.access)-1):
+            if(v == TYPE.ERROR):
+                return TYPE.ERROR
+            if(v.type != TYPE.TYPELIST):
+                return TYPE.ERROR
+            index = self.access[i].execute(main, tabla, scope)
+            if(index == TYPE.ERROR):
+                return TYPE.ERROR
+            if(index.type != TYPE.TYPEINT64):
+                return TYPE.ERROR
+            if (index.val > len(v.val)):
+                return TYPE.ERROR
+            if (index.val < 0):
+                return TYPE.ERROR
+            v = v.val[index.val-1].execute(main, tabla, scope)
+        if(v == TYPE.ERROR):
             return TYPE.ERROR
-        if (pos < 0):
+        if(v.type != TYPE.TYPELIST):
             return TYPE.ERROR
-        return arr[pos-1].execute(main, tabla, scope)
+        index = self.access[len(self.access)-1].execute(main, tabla, scope)
+        if(index == TYPE.ERROR):
+            return TYPE.ERROR
+        if(index.type != TYPE.TYPEINT64):
+            return TYPE.ERROR
+        if (index.val > len(v.val)):
+            return TYPE.ERROR
+        if (index.val < 0):
+            return TYPE.ERROR
+        v = v.val[index.val-1]
+        if(v == TYPE.ERROR):
+            return TYPE.ERROR
+        return v

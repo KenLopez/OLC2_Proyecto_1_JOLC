@@ -39,9 +39,9 @@ class For:
         if(v.type == TYPE.RANGE):
             v1 = v.val[0].execute(main, tabla, nscope)
             v2 = v.val[1].execute(main, tabla, nscope)
-            if((v1==TYPE.ERROR) or (v1 == None) or (v1.type != TYPE.TYPEINT64)):
+            if((v1==TYPE.ERROR) or (v1.type != TYPE.TYPEINT64)):
                 return TYPE.ERROR
-            if((v2==TYPE.ERROR) or (v2 == None) or (v2.type != TYPE.TYPEINT64)):
+            if((v2==TYPE.ERROR) or (v2.type != TYPE.TYPEINT64)):
                 return TYPE.ERROR
             for i in range(v1.val,v2.val+1):
                 ntabla.updateSymbol(Symbol(self.variable, Value(i, TYPE.TYPEINT64, self.row, self.col), nscope, self.row, self.col), TYPE.LOCAL)
@@ -50,5 +50,14 @@ class For:
                     res = j.execute(main, ftabla, nscope)
                     if(res == TYPE.ERROR):
                         return TYPE.ERROR
+                    if(res.type == TYPE.CONTINUE):
+                        break
+                    if(res.type == TYPE.BREAK):
+                        res = res.execute(main, tabla, scope)
+                        if (res == TYPE.ERROR):
+                            return Value(None, TYPE.NOTHING, self.row, self.col)
+                        return res
+                else:
+                    continue
             return Value(None, TYPE.NOTHING, self.row, self.col)
         return TYPE.ERROR

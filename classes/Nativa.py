@@ -126,3 +126,27 @@ class Nativa:
                 if(v.type == TYPE.TYPELIST):
                     return Value(len(v.val), TYPE.TYPEINT64, self.row, self.col)
             return TYPE.ERROR
+        elif(self.type == TYPE.PUSH):
+            if(len(self.val) == 2):
+                arr = self.val[0].execute(main, tabla, scope)
+                if(arr == TYPE.ERROR):
+                    return TYPE.ERROR
+                if(arr.type != TYPE.TYPELIST):
+                    return TYPE.ERROR
+                v = self.val[1].execute(main, tabla, scope)
+                if(v == TYPE.ERROR):
+                    return TYPE.ERROR
+                arr.val.append(v)
+                return Value(None, TYPE.NOTHING, self.row, self.col)
+            return TYPE.ERROR
+        elif(self.type == TYPE.POP):
+            if(len(self.val) == 1):
+                v = self.val[0].execute(main, tabla, scope)
+                if(v == TYPE.ERROR):
+                    return TYPE.ERROR
+                if(v.type != TYPE.TYPELIST):
+                    return TYPE.ERROR
+                p = v.val[len(v.val)-1].execute(main, tabla, scope)
+                v.val = v.val[0:-1]
+                return Value(p.val, p.type, p.row, p.col)
+            return TYPE.ERROR

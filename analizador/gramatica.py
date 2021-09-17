@@ -23,8 +23,8 @@ reservadas = {
     'float'     :   'FLOAT',
     'string'    :   'FSTRING',
     'typeof'    :   'TYPEOF',
-    #'push!'      :   'PUSH',
-    #'pop!'       :   'POP',
+    'push'      :   'PUSH',
+    'pop'       :   'POP',
     'length'    :   'LENGTH',
     'if'        :   'IF',
     'elseif'    :   'ELSEIF',
@@ -32,9 +32,9 @@ reservadas = {
     'while'     :   'WHILE',
     'for'       :   'FOR',
     'in'        :   'IN',
-    #'break'     :   'BREAK',
-    #'continue'  :   'CONTINUE',
-    #'return'    :   'RETURN',
+    'break'     :   'BREAK',
+    'continue'  :   'CONTINUE',
+    'return'    :   'RETURN',
     #'mutable'   :   'MUTABLE',
     'uppercase' :   'UPPERCASE',
     'lowercase' :   'LOWERCASE',
@@ -150,6 +150,7 @@ def t_newline(t):
 def t_error(t):
     print("Caracter no reconocido '%s'" % t.value[0])
 
+from classes.Control import Control
 from classes.For import For
 from classes.ArrayAccess import ArrayAccess
 from classes.While import While
@@ -222,6 +223,18 @@ def p_instruccion_if(t):
     'instruccion    : if END sync'
     t[0] = t[1]
 
+def p_instruccion_push(t):
+    'instruccion    : PUSH NOT args sync'
+    t[0] = Nativa(t[3], TYPE.PUSH, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_control(t):
+    '''instruccion  : BREAK sync
+                    | CONTINUE sync
+                    | RETURN sync
+    '''
+    if t[1] == 'break': t[0] = Control(None, TYPE.BREAK, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'continue': t[0] = Control(None, TYPE.CONTINUE, t.lexer.lineno, t.lexer.lexpos)
+
 def p_if_solo(t):
     'if             : IF expl instrucciones'
     t[0] = If([t[2]], [t[3]], [], t.lexer.lineno, t.lexer.lexpos)
@@ -281,7 +294,7 @@ def p_id_id(t):
     t[0] = t[1]
 
 def p_id_array_access(t):
-    'id         : expl array_access'
+    'id         : expval array_access'
     t[0] = ArrayAccess(t[1], t[2], t.lexer.lineno, t.lexer.lexpos)
 
 def p_expl(t):
@@ -401,6 +414,8 @@ def p_nativa(t):
                     | FSTRING args
                     | TYPEOF args
                     | LENGTH args
+                    | PUSH NOT args
+                    | POP NOT args
     '''
     if t[1] == 'uppercase': t[0] = Nativa(t[2], TYPE.UPPERCASE, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'lowercase': t[0] = Nativa(t[2], TYPE.LOWERCASE, t.lexer.lineno, t.lexer.lexpos)
@@ -416,6 +431,8 @@ def p_nativa(t):
     elif t[1] == 'float': t[0] = Nativa(t[2], TYPE.FFLOAT, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'typeof': t[0] = Nativa(t[2], TYPE.TYPEOF, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'length': t[0] = Nativa(t[2], TYPE.LENGTH, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'pop': t[0] = Nativa(t[3], TYPE.POP, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_expval_array(t):
     'expval         : CORCHEA list_values CORCHEC'

@@ -6,7 +6,7 @@ class SymbolTable:
         self.padre = padre
         self.symbols = {}
     
-    def updateSymbol(self, symbol, type=TYPE.NOTHING):
+    def updateSymbol(self, symbol, type=TYPE.NOTHING, index=None):
         s = self.getSymbol(symbol.id, type)
         if(s != TYPE.ERROR):
             s.type = symbol.val.type
@@ -22,10 +22,9 @@ class SymbolTable:
                 return s.val
         if(self.padre == None):
             return TYPE.ERROR
-        else:
-            if(type != TYPE.LOCAL):
-                res = self.padre.getSymbol(id, type)
-                if(res==TYPE.ERROR):
-                    return TYPE.ERROR
-                return res
-            return TYPE.ERROR
+        if(type != TYPE.LOCAL):
+            res = self.padre.getSymbol(id, type)
+            if(res==TYPE.ERROR):
+                return TYPE.ERROR
+            return res
+        return TYPE.ERROR

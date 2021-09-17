@@ -22,6 +22,7 @@ class Print:
                 output += str
         if self.type == TYPE.FPRINTLN: output += '\n'
         main.newPrint(output)
+        return Value(None, TYPE.NOTHING, self.row, self.col)
 
 def convertString(v, main, tabla, scope):
     if(v.type == TYPE.TYPEBOOL):

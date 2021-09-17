@@ -23,9 +23,13 @@ class If:
                     res2 = j.execute(main, ntabla, nscope)
                     if(res2 == TYPE.ERROR):
                         return TYPE.ERROR
+                    if(res2.type == TYPE.CONTINUE or res2.type == TYPE.BREAK):
+                        return res2
                 return Value(None, TYPE.NOTHING, self.row, self.col)
         for i in self.elseinstructions:
             res = i.execute(main, ntabla, nscope)
             if(res == TYPE.ERROR):
                 return TYPE.ERROR
+            if(res.type == TYPE.CONTINUE or res.type == TYPE.BREAK):
+                return res
         return Value(None, TYPE.NOTHING, self.row, self.col)

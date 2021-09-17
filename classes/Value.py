@@ -17,4 +17,5 @@ class Value:
                     return TYPE.ERROR
                 elif(nv.type != TYPE.TYPELIST):
                     self.val[i] = nv
+            return self
         return Value(self.val, self.type, self.row, self.col )
