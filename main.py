@@ -1,10 +1,9 @@
-from classes.Value import Value
 import analizador.gramatica as g
-from classes.Tipo import TYPE
-from classes.Aritmetica import Aritmetica
 from classes.Global import Global
+import sys
+sys.setrecursionlimit(4000)
 
-f = open("./analizador/prueba4.txt", "r")
+f = open("./analizador/prueba7.txt", "r")
 input = f.read()
 
 main = Global()

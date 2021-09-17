@@ -187,13 +187,13 @@ def p_init(t):
 
 def p_globales(t):
     '''globales     : globales instruccion
-                    | globales funcion
+                    | globales funcion END sync
     '''
     t[1].append(t[2])
     t[0] = t[1]
 
 def p_globales_2(t):
-    '''globales     : funcion
+    '''globales     : funcion END sync
                     | instruccion
     '''
     t[0] = [t[1]]
@@ -303,10 +303,10 @@ def p_asignacion_tipo(t):
 
 def p_declaracion_none(t):
     'asignacion     : variable'
-    t[0] = Asignacion(t[1][0], None, t[1][1], TYPE.ANY, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Asignacion(t[1][0], None, TYPE.ANY, t[1][1], t.lexer.lineno, t.lexer.lexpos)
 
 def p_funcion(t):
-    'funcion        : FUNCTION ID params instrucciones END sync'
+    'funcion        : FUNCTION ID params instrucciones'
     t[0] = Declaracion(t[2], Funcion(t[3], t[4]), t.lexer.lineno, t.lexer.lexpos)
 
 def p_params(t):
@@ -335,8 +335,8 @@ def p_param(t):
     t[0] = Param(t[1], TYPE.ANY)
 
 def p_param_type(t):
-    'param          : ID typing'
-    t[0] = Param(t[1], t[2])
+    'param          : ID DDOSPT typing'
+    t[0] = Param(t[1], t[3])
 
 def p_variable_id(t):
     'variable       : id'

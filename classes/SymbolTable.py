@@ -17,8 +17,12 @@ class SymbolTable:
     def updateSymbol(self, symbol, type=TYPE.NOTHING):
         s = self.getSymbol(symbol.id, type)
         if(s != TYPE.ERROR):
-            s.type = symbol.val.type
-            s.val = symbol.val.val
+            if(s == None):
+                s = symbol
+            else:
+                if(symbol.val != None):
+                    s.type = symbol.val.type
+                    s.val = symbol.val.val
         else:
             self.symbols[symbol.id] = symbol
         return Value(None, TYPE.NOTHING, symbol.row, symbol.col)

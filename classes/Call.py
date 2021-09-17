@@ -12,15 +12,18 @@ class Call:
     
     def execute(self, main, tabla, scope):
         nscope = 'GLOBAL__FUNCTION__' + self.id
-        ntabla = SymbolTable(tabla)
-        v = v = tabla.getSymbol(self.id)
+        t = tabla
+        while t.padre != None:
+            t = t.padre
+        ntabla = SymbolTable(t)
+        v = t.getSymbol(self.id)
         if(v == TYPE.ERROR):
             return TYPE.ERROR
         if(v.type == TYPE.FUNCTION):
             if(len(self.args)!=len(v.params)):
                 return TYPE.ERROR
             for a in range(len(self.args)):
-                val = self.args[a].execute(main, ntabla, nscope)
+                val = self.args[a].execute(main, tabla, nscope)
                 if(val == TYPE.ERROR):
                     return TYPE.ERROR
                 if(v.params[a].type != TYPE.ANY and val.type != v.params[a].type):

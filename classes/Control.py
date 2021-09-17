@@ -16,8 +16,8 @@ class Control:
                 if(self.val == None):
                     return Value(None, TYPE.NOTHING, self.row, self.col)
                 v = self.val.execute(main, tabla, scope)
-                if(v==TYPE.ERROR):
+                if(v == TYPE.ERROR):
                     return TYPE.ERROR
-                return Control(v,self.type, self.row, self.col)
+                return Control(v, self.type, self.row, self.col)
         return TYPE.ERROR
             
