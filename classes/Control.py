@@ -11,5 +11,13 @@ class Control:
         if(self.type == TYPE.BREAK or self.type == TYPE.CONTINUE):
             if (scope.__contains__('FOR') or scope.__contains__('WHILE')):
                 return self
+        if(self.type == TYPE.RETURN):
+            if(scope.__contains__('FUNCTION')): 
+                if(self.val == None):
+                    return Value(None, TYPE.NOTHING, self.row, self.col)
+                v = self.val.execute(main, tabla, scope)
+                if(v==TYPE.ERROR):
+                    return TYPE.ERROR
+                return Control(v,self.type, self.row, self.col)
         return TYPE.ERROR
             

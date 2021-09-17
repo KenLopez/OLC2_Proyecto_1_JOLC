@@ -5,8 +5,16 @@ class SymbolTable:
     def __init__(self, padre = None):
         self.padre = padre
         self.symbols = {}
+
+    def newSymbol(self, symbol, type):
+        s = self.getSymbol(symbol.id, type)
+        if(s == TYPE.ERROR):
+            self.symbols[symbol.id] = symbol
+        else:
+            return TYPE.ERROR
+        return Value(None, TYPE.NOTHING, symbol.row, symbol.col)
     
-    def updateSymbol(self, symbol, type=TYPE.NOTHING, index=None):
+    def updateSymbol(self, symbol, type=TYPE.NOTHING):
         s = self.getSymbol(symbol.id, type)
         if(s != TYPE.ERROR):
             s.type = symbol.val.type

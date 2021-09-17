@@ -57,6 +57,8 @@ class For:
                         if (res == TYPE.ERROR):
                             return Value(None, TYPE.NOTHING, self.row, self.col)
                         return res
+                    if(res.type == TYPE.RETURN):
+                        return res
                 else:
                     continue
             return Value(None, TYPE.NOTHING, self.row, self.col)

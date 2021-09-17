@@ -28,6 +28,8 @@ class While:
                     if (res == TYPE.ERROR):
                         return Value(None, TYPE.NOTHING, self.row, self.col)
                     return res
+                if(res.type == TYPE.RETURN):
+                    return res
             else:
                 v = self.condition.execute(main, ntabla, nscope)
                 if(v == TYPE.ERROR):

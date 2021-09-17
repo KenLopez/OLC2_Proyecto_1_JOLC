@@ -17,7 +17,7 @@ reservadas = {
     'println'   :   'PRINTLN',
     'local'     :   'LOCAL',
     'global'    :   'GLOBAL',
-    #'function'  :   'FUNCTION',
+    'function'  :   'FUNCTION',
     'parse'     :   'PARSE',
     'trunc'     :   'TRUNC',
     'float'     :   'FLOAT',
@@ -65,7 +65,6 @@ tokens = [
     'OR',
     'AND',
     'NOT',
-    #'DOLAR',
     'DECIMAL',
     'ENTERO',
     'ID',
@@ -99,7 +98,6 @@ t_DIFERENTE     = r'!='
 t_OR            = r'\|\|'
 t_AND           = r'&&'
 t_NOT           = r'!'
-#t_DOLAR         = r'\$'
 t_COMA          = r','
 
 def t_DECIMAL(t):
@@ -150,6 +148,10 @@ def t_newline(t):
 def t_error(t):
     print("Caracter no reconocido '%s'" % t.value[0])
 
+from classes.Declaracion import Declaracion
+from classes.Call import Call
+from classes.Funcion import Funcion
+from classes.Param import Param
 from classes.Control import Control
 from classes.For import For
 from classes.ArrayAccess import ArrayAccess
@@ -180,8 +182,21 @@ precedence = (
 )
 
 def p_init(t):
-    'init           :   instrucciones'
+    'init           : globales'
     t[0] = t[1]
+
+def p_globales(t):
+    '''globales     : globales instruccion
+                    | globales funcion
+    '''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_globales_2(t):
+    '''globales     : funcion
+                    | instruccion
+    '''
+    t[0] = [t[1]]
 
 def p_instrucciones_lista(t):
     'instrucciones  : instrucciones instruccion'
@@ -234,6 +249,15 @@ def p_instruccion_control(t):
     '''
     if t[1] == 'break': t[0] = Control(None, TYPE.BREAK, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'continue': t[0] = Control(None, TYPE.CONTINUE, t.lexer.lineno, t.lexer.lexpos)
+    elif t[1] == 'return': t[0] = Control(None, TYPE.RETURN, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_return_value(t):
+    'instruccion    : RETURN expl sync'
+    t[0] = Control(t[2], TYPE.RETURN, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_call(t):
+    'instruccion    : call sync'
+    t[0] = t[1]
 
 def p_if_solo(t):
     'if             : IF expl instrucciones'
@@ -276,6 +300,43 @@ def p_asignacion_any(t):
 def p_asignacion_tipo(t):
     'asignacion     : variable IGUAL expl DDOSPT typing'
     t[0] = Asignacion(t[1][0], t[3], t[5], t[1][1], t.lexer.lineno, t.lexer.lexpos)
+
+def p_declaracion_none(t):
+    'asignacion     : variable'
+    t[0] = Asignacion(t[1][0], None, t[1][1], TYPE.ANY, t.lexer.lineno, t.lexer.lexpos)
+
+def p_funcion(t):
+    'funcion        : FUNCTION ID params instrucciones END sync'
+    t[0] = Declaracion(t[2], Funcion(t[3], t[4]), t.lexer.lineno, t.lexer.lexpos)
+
+def p_params(t):
+    'params         : PAREA list_params PAREC'
+    t[0] = t[2]
+
+def p_params_none(t):
+    'params         : PAREA PAREC'
+    t[0] = []
+
+def p_call(t):
+    'call           : ID args'
+    t[0] = Call(t[1], t[2], t.lexer.lineno, t.lexer.lexpos)
+
+def p_list_params(t):
+    'list_params    : list_params COMA param'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_list_param(t):
+    'list_params    : param'
+    t[0] = [t[1]]
+
+def p_param(t):
+    'param          : ID'
+    t[0] = Param(t[1], TYPE.ANY)
+
+def p_param_type(t):
+    'param          : ID typing'
+    t[0] = Param(t[1], t[2])
 
 def p_variable_id(t):
     'variable       : id'
@@ -383,6 +444,10 @@ def p_expval_nativa(t):
 def p_expval_id(t):
     'expval         : ID'
     t[0] = Variable(t[1], t.lexer.lineno, t.lexer.lexpos)
+
+def p_expval_call(t):
+    'expval         : call'
+    t[0] = t[1]
 
 def p_expval_nothing(t):
     'expval         : NOTHING'
