@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}JOLC{% endblock %}
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar navbar-dark" style="background-color: #832561;">
+    <div class="container-fluid ms-5 my-2">
+      <a class="navbar-brand me-5" href="">JOLC</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link {{'active'}}" href="">Código</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="">Errores</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="">Tabla de Símbolos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="">Árbol de Análisis Sintáctico</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+</nav>
+<div class="container-fluid mt-5">
+  <div class="row">
+    <form class="row col-7 ps-5" method="POST">
+      <div class="col-10">
+        <textarea class="form-control" name="entrada" wrap="off">{{text}}</textarea>
+      </div>
+      <div class="d-flex justify-content-center col-2">
+        <div class="d-flex align-items-center">
+          <button type="submit" class="btn">Compilar</button>
+        </div>
+      </div>
+    </form>
+    <form class="row col-5 pe-0">
+      <div class="col-12 pe-0">
+        <textarea class="form-control"disabled>{{result.output}}</textarea>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

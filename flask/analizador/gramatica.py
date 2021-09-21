@@ -6,7 +6,7 @@ reservadas = {
     'Bool'      :   'BOOL',
     'Char'      :   'CHAR',
     'String'    :   'STRING',
-    #'struct'    :   'STRUCT',
+    'struct'    :   'STRUCT',
     'log'       :   'LOG',
     'log10'     :   'LOG10',
     'sin'       :   'SIN',
@@ -35,7 +35,7 @@ reservadas = {
     'break'     :   'BREAK',
     'continue'  :   'CONTINUE',
     'return'    :   'RETURN',
-    #'mutable'   :   'MUTABLE',
+    'mutable'   :   'MUTABLE',
     'uppercase' :   'UPPERCASE',
     'lowercase' :   'LOWERCASE',
     'true'      :   'TRUE',
@@ -72,6 +72,7 @@ tokens = [
     'CARACTER',
     'COMA',
     'DOSPT',
+    'PT',
 ] + list(reservadas.values())
 
 # Tokens
@@ -99,6 +100,7 @@ t_OR            = r'\|\|'
 t_AND           = r'&&'
 t_NOT           = r'!'
 t_COMA          = r','
+t_PT            = r'\.'
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -117,7 +119,7 @@ def t_ENTERO(t):
     return t
 
 def t_ID(t):
-    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reservadas.get(t.value, 'ID')
     return t
 
@@ -139,7 +141,7 @@ def t_COMENTARIO_SIMPLE(t):
     r'\#.*\n'
     t.lexer.lineno += 1
 
-t_ignore = " \t"
+t_ignore = " \t\r"
 
 def t_newline(t):
     r'\n+'
@@ -148,6 +150,7 @@ def t_newline(t):
 def t_error(t):
     print("Caracter no reconocido '%s'" % t.value[0])
 
+from classes.Struct import Struct
 from classes.Declaracion import Declaracion
 from classes.Call import Call
 from classes.Funcion import Funcion
@@ -166,6 +169,7 @@ from classes.Aritmetica import Aritmetica
 from classes.Print import Print
 from classes.Logica import Logica
 from classes.Relacional import Relacional
+from classes.StructAccess import StructAccess
 import ply.lex as lex
 lexer = lex.lex()
 
@@ -179,6 +183,7 @@ precedence = (
     ('left', 'MAS', 'MENOS'),
     ('left', 'POR', 'DIVIDIDO', 'MODULO'),
     ('right', 'ELEVADO'),
+    ('nonassoc', 'PT')
 )
 
 def p_init(t):
@@ -188,6 +193,7 @@ def p_init(t):
 def p_globales(t):
     '''globales     : globales instruccion
                     | globales funcion END sync
+                    | globales struct END sync
     '''
     t[1].append(t[2])
     t[0] = t[1]
@@ -195,8 +201,34 @@ def p_globales(t):
 def p_globales_2(t):
     '''globales     : funcion END sync
                     | instruccion
+                    | struct END sync
     '''
     t[0] = [t[1]]
+
+def p_struct(t):
+    'struct         : STRUCT ID attributes'
+    t[0] = Declaracion(t[2], Struct(t[3], False, TYPE.STRUCTDEF), t.lexer.lineno, t.lexer.lexpos)
+
+def p_struct_mutable(t):
+    'struct         : MUTABLE STRUCT ID attributes'
+    t[0] = Declaracion(t[3], Struct(t[4], True, TYPE.STRUCTDEF), t.lexer.lineno, t.lexer.lexpos)
+
+def p_attributes(t):
+    'attributes     : attributes attribute'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_attributes_attribute(t):
+    'attributes     : attribute'
+    t[0] = [t[1]]
+
+def p_attribute(t):
+    'attribute      : ID sync'
+    t[0] = Param(t[1], TYPE.ANY)
+
+def p_attribute_type(t):
+    'attribute      : ID DDOSPT typing sync'
+    t[0] = Param(t[1], t[3])
 
 def p_instrucciones_lista(t):
     'instrucciones  : instrucciones instruccion'
@@ -342,12 +374,16 @@ def p_variable_id(t):
     'variable       : id'
     t[0] = [t[1], TYPE.NOTHING]
 
+def p_variable_struct(t):
+    'variable       : ID PT struct_access'
+    t[0] = [StructAccess(Variable(t[1], t.lexer.lineno, t.lexer.lexpos), t[3], t.lexer.lineno, t.lexer.lexpos), TYPE.NOTHING]
+
 def p_variable_local(t):
-    'variable       : LOCAL id'
+    'variable       : LOCAL ID'
     t[0] = [t[2], TYPE.LOCAL]
 
 def p_variable_global(t):
-    'variable       : GLOBAL id'
+    'variable       : GLOBAL ID'
     t[0] = [t[2], TYPE.GLOBAL]
 
 def p_id_id(t):
@@ -449,10 +485,6 @@ def p_expval_call(t):
     'expval         : call'
     t[0] = t[1]
 
-def p_expval_nothing(t):
-    'expval         : NOTHING'
-    t[0] = Value(None, TYPE.NOTHING, t.lexer.lineno, t.lexer.lexpos)
-
 def p_expval_paren(t):
     'expval         : PAREA expl PAREC'
     t[0] = t[2]
@@ -511,6 +543,14 @@ def p_expval_array_access(t):
     'expval         : expval array_access'
     t[0] = ArrayAccess(t[1], t[2], t.lexer.lineno, t.lexer.lexpos)
 
+def p_expval_nothing(t):
+    'expval         : NOTHING'
+    t[0] = Value(None, TYPE.NOTHING, t.lexer.lineno, t.lexer.lexpos)
+
+def p_expval_struct_access(t):
+    'expval         : ID PT struct_access'
+    t[0] = StructAccess(Variable(t[1], t.lexer.lineno, t.lexer.lexpos), t[3], t.lexer.lineno, t.lexer.lexpos)
+
 def p_array_accesses(t):
     'array_access   : array_access CORCHEA expm CORCHEC'
     t[1].append(t[3])
@@ -519,6 +559,15 @@ def p_array_accesses(t):
 def p_array_access(t):
     'array_access   : CORCHEA expm CORCHEC'
     t[0] = [t[2]]
+
+def p_struct_accesses(t):
+    'struct_access   : struct_access PT ID'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_struct_access(t):
+    'struct_access   : ID'
+    t[0] = [t[1]]
 
 def p_list_values(t):
     'list_values    : list_values COMA expl'
@@ -551,12 +600,14 @@ def p_typing(t):
                     | STRING
                     | BOOL
                     | CHAR
+                    | ID
     '''
     if t[1]=='Int64': t[0] = TYPE.TYPEINT64
     elif t[1]=='Float64': t[0] = TYPE.TYPEFLOAT64
     elif t[1]=='String': t[0] = TYPE.TYPESTRING
     elif t[1]=='Bool': t[0] = TYPE.TYPEBOOL
     elif t[1]=='Char': t[0] = TYPE.TYPECHAR
+    else: t[0] = t[1]
 
 def p_sync(t):
     'sync           : PTCOMA'
