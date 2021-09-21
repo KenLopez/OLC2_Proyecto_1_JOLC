@@ -1,10 +1,7 @@
 from types import resolve_bases
 from flask import Flask, render_template, url_for, redirect, request
-import analizador.gramatica as g
 from classes.Global import Global
-import sys
-sys.setrecursionlimit(4000)
-
+import analizador.gramatica as g
 
 app = Flask(__name__)
 
