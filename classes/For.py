@@ -20,7 +20,11 @@ class For:
         ntabla = SymbolTable(tabla)
         if(v.type == TYPE.TYPELIST):
             for i in v.val:
-                ntabla.updateSymbol(Symbol(self.variable, i, nscope, self.row, self.col), TYPE.LOCAL)
+                x = i.execute(main, nscope, tabla)
+                if(x.type == TYPE.TYPELIST):
+                    tmp = x.val.copy()
+                    x = Value(tmp, x.type, x.row, x.col)
+                ntabla.updateSymbol(Symbol(self.variable, x, nscope, self.row, self.col), TYPE.LOCAL)
                 ftabla = SymbolTable(ntabla)
                 for j in self.instrucciones:
                     res = j.execute(main, ftabla, nscope)
