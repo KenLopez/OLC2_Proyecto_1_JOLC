@@ -272,11 +272,14 @@ def p_instruccion_for(t):
 
 def p_range_expl(t):
     'range          : expval'
-    t[0] = [t[1][0], Nodo('range', t[1][1])]
+    t[0] = [t[1][0], Nodo('range', [t[1][1]])]
 
 def p_range_range(t):
     'range          : expm DOSPT expm'
-    t[0] = [Value([t[1][0], t[3][0]], TYPE.RANGE, t.lexer.lineno, t.lexer.lexpos), Nodo('range', [t[1][1], Nodo(t[2]), t[3][0]])]
+    t[0] = [
+        Value([t[1][0], t[3][0]], TYPE.RANGE, t.lexer.lineno, t.lexer.lexpos), 
+        Nodo('range', [t[1][1], Nodo(t[2]), t[3][1]])
+    ]
 
 def p_instruccion(t):
     '''instruccion  : PRINT args sync 
@@ -303,7 +306,7 @@ def p_instruccion_control(t):
                     | CONTINUE sync
                     | RETURN sync
     '''
-    t[0] = [None, Nodo('instruccion', [t[1], t[2]])]
+    t[0] = [None, Nodo('instruccion', [Nodo(t[1]), t[2]])]
     if t[1] == 'break': t[0][0] = Control(None, TYPE.BREAK, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'continue': t[0][0] = Control(None, TYPE.CONTINUE, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'return': t[0][0] = Control(None, TYPE.RETURN, t.lexer.lineno, t.lexer.lexpos)
@@ -446,7 +449,7 @@ def p_id_array_access(t):
     'id         : ID array_access'
     t[0] = [
         ArrayAccess(Variable(t[1], t.lexer.lineno, t.lexer.lexpos), t[2][0], t.lexer.lineno, t.lexer.lexpos), 
-        Nodo('id', [t[1][1], t[2][1]])
+        Nodo('id', [Nodo(t[1]), t[2][1]])
     ]
 
 def p_expl(t):
@@ -601,7 +604,7 @@ def p_expval_array(t):
     'expval         : CORCHEA list_values CORCHEC'
     t[0] = [
         Value(t[2][0], TYPE.TYPELIST, t.lexer.lineno, t.lexer.lexpos),
-        Nodo('expval', [Nodo(t[1]), t[2][0], Nodo(t[2])])
+        Nodo('expval', [Nodo(t[1]), t[2][1], Nodo(t[3])])
     ]
 
 def p_expval_empty_array(t):
