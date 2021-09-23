@@ -10,7 +10,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" href="">Código</a>
+            <a class="nav-link" href="{{url_for('compile')}}">Código</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="">Errores</a>
@@ -19,29 +19,17 @@
             <a class="nav-link" href="">Tabla de Símbolos</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{url_for('tree')}}">Árbol de Análisis Sintáctico</a>
+            <a class="nav-link active" href="">Árbol de Análisis Sintáctico</a>
           </li>
         </ul>
       </div>
     </div>
 </nav>
 <div class="container-fluid mt-5">
-  <div class="row">
-    <form class="row col-7 ps-5" method="POST">
-      <div class="col-10">
-        <textarea class="form-control" name="entrada" wrap="off">{{entrada}}</textarea>
-      </div>
-      <div class="d-flex justify-content-center col-2">
-        <div class="d-flex align-items-center">
-          <button type="submit" class="btn">Compilar</button>
+    <div class="row">
+        <div class="col-12">
+            <img src="data:image/png;base64,{{image|safe}}"  class="img-fluid"/>
         </div>
-      </div>
-    </form>
-    <form class="row col-5 pe-0">
-      <div class="col-12 pe-0">
-        <textarea class="form-control"disabled>{{text}}</textarea>
-      </div>
-    </form>
-  </div>
+    </div>
 </div>
 {% endblock %}

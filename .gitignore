@@ -3,4 +3,5 @@ parsetab.py
 **/__pycache__/**
 /venv
 /.vscode
-flask/src
+/src
+main.py
